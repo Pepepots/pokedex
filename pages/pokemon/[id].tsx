@@ -5,30 +5,30 @@ import { Button, Card, Container, Grid, Image, Text } from "@nextui-org/react"
 
 import confetti from 'canvas-confetti'
 
-import { pokeApi } from "../../api"
 import { Layout } from "../../components/layouts"
-import { PokemonListResponse, Sprites } from "../../interfaces"
 import { getPokemonInfo, localFavorites } from "../../utils"
+import { Sprites } from "../../interfaces"
 
 interface Props {
     pokemon: {
         name: string;
         sprites: Sprites;
-        id: number;
+        pokeId: number;
     }
 }
 
-const PokemonByNamePage: NextPage<Props> = ({ pokemon }) => {
-    const [isInFavorites, setIsInFavorites] = useState( typeof window === 'object' && localFavorites.existInFavorites( pokemon.id ))
+const PokemonPage: NextPage<Props> = ({ pokemon }) => {
 
-    const { name, id } = pokemon
+    const [isInFavorites, setIsInFavorites] = useState( typeof window === 'object' && localFavorites.existInFavorites( pokemon.pokeId ))
+
+    const {name, id} = pokemon
 
     // Toggle es cuando una funcion pasa de on a off para este caso agregar eliminar de fav
     const onToggleFavorite = () => {
         localFavorites.toggleFavorite( {name, id} )
         setIsInFavorites( !isInFavorites )
 
-        if ( !isInFavorites ) {
+        if ( isInFavorites ) {
             confetti({
                 zIndex: 999,
                 particleCount: 100,
@@ -110,15 +110,15 @@ const PokemonByNamePage: NextPage<Props> = ({ pokemon }) => {
     )
 }
 
+
+
 export const getStaticPaths: GetStaticPaths = async (ctx) => {
 
-    const { data } = await pokeApi.get<PokemonListResponse>('/pokemon?limit=151')
-
-    const names: string[] = data.results.map( poke => poke.name)
+    const pokemon151 = [...Array(151)].map((val, i) => `${i + 1}`)
 
     return {
-        paths: names.map(name => ({
-            params: { name } 
+        paths: pokemon151.map(id => ({
+            params: { id }
         })),
         fallback: 'blocking'
     }
@@ -126,9 +126,9 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
 
-    const { name } = params as { name: string }
+    const { id } = params as { id: string }
 
-    const pokemon = await getPokemonInfo( name )
+    const pokemon = await getPokemonInfo( id )
 
     if ( !pokemon ) {
         return {
@@ -146,4 +146,4 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     }
 }
 
-export default PokemonByNamePage
+export default PokemonPage
