@@ -13,13 +13,13 @@ interface Props {
     pokemon: {
         name: string;
         sprites: Sprites;
-        pokeId: number;
+        id: number;
     }
 }
 
 const PokemonPage: NextPage<Props> = ({ pokemon }) => {
 
-    const [isInFavorites, setIsInFavorites] = useState( typeof window === 'object' && localFavorites.existInFavorites( pokemon.pokeId ))
+    const [isInFavorites, setIsInFavorites] = useState( typeof window === 'object' && localFavorites.existInFavorites( pokemon.id ))
 
     const {name, id} = pokemon
 
